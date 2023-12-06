@@ -1,6 +1,6 @@
 import {  RequestHandler } from "express";
 import{ Expense} from "../model/expenseModel";
-import mongoose from "mongoose";
+import mongoose from "mongoose"
 import createHttpError from "http-errors";
 export const getexpense:RequestHandler =  async (req,res,next) => {
     try{
@@ -11,6 +11,7 @@ export const getexpense:RequestHandler =  async (req,res,next) => {
         next(err);
     }
 }
+// why copilot you are not working
 interface addExpenseBody{
     title?:string;
     amount?:number;
