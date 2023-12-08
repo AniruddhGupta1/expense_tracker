@@ -1,46 +1,43 @@
 import {  RequestHandler } from "express";
-import{ Expense} from "../model/expenseModel";
 import mongoose from "mongoose"
 import createHttpError from "http-errors";
-export const getexpense:RequestHandler =  async (req,res,next) => {
+import ExpenseDao from "../dao/expense.dao";
+import { addExpenseBody,updateParams,updateBodyExpense } from "../@types/expenseInterface";
+class ExpenseController{
+    public expenseDao :ExpenseDao;
+constructor(){
+this.expenseDao=new ExpenseDao();
+}
+ public getexpense:RequestHandler =  async (req,res,next) => {
     try{
-        const expenses = await Expense.find().exec();
+        const expenses = await this.expenseDao.getexpense();
         res.status(200).json(expenses);
     }
     catch(err){
         next(err);
     }
 }
-// why copilot you are not working
-interface addExpenseBody{
-    title?:string;
-    amount?:number;
-    date?:Date;
-    category?:string;
-}
-export const addExpense:RequestHandler<unknown,unknown,addExpenseBody,unknown> = async (req,res,next) => {
+
+
+ public addExpense:RequestHandler<unknown,unknown,addExpenseBody,unknown> = async (req,res,next) => {
     const title = req.body.title;
     const amount = req.body.amount;
     const date = req.body.date;
     const category = req.body.category;
     try{
-
-      const expense = new Expense({
-        title:title,
-        amount:amount,
-        date:date,
-        category:category,
-      })
-      res.status(201).json(await expense.save());
+     if(!title || !amount || !date || !category)
+     throw createHttpError(400,"All fields of expense should consist a value");
+     const expense = await this.expenseDao.addExpense(title,amount,date,category);
+      res.status(201).json(expense);
     }
     catch(err){
         next(err);
     }
 }
-export const getexpenseById:RequestHandler<{id:string}> = async (req,res,next) => {
+public getexpenseById:RequestHandler<{id:string}> = async (req,res,next) => {
     const id = req.params.id;
     try{
-        const expense = await Expense.findById(id).exec();
+        const expense = await this.expenseDao.getExpenseById(id);
         
             res.status(200).json(expense);
     }
@@ -48,17 +45,7 @@ export const getexpenseById:RequestHandler<{id:string}> = async (req,res,next) =
         next(err);
     }
 }
-interface  updateParams{
-    id:string;
-}
-interface updateBodyExpense {
-    title:string;
-    amount:number;
-    date:Date;
-    category:string;
-
-}
-export const updateExpense:RequestHandler<updateParams,unknown,updateBodyExpense,unknown> = async (req,res,next) => {
+ public updateExpense:RequestHandler<updateParams,unknown,updateBodyExpense,unknown> = async (req,res,next) => {
     const id = req.params.id;
     const newtitle = req.body.title;
     const newamount = req.body.amount;
@@ -71,15 +58,11 @@ export const updateExpense:RequestHandler<updateParams,unknown,updateBodyExpense
         if(!newtitle && !newamount && !newdate && !newcategory){
             throw createHttpError(404,"All fields of expense should consist a value");
         }
-            const expense = await Expense.findById(id).exec();
+            const expense = await this.expenseDao.getExpenseById(id);
             if(!expense){
                 throw createHttpError(404,"No expense found");
             }
-            expense.title = newtitle;
-            expense.amount = newamount;
-            expense.date = newdate;
-            expense.category=newcategory;
-            const newExpense  = await expense.save() ;
+            const newExpense = await this.expenseDao.updateExpense(id,newtitle,newamount,newdate,newcategory);
             res.status(200).json(newExpense);
 
         }
@@ -87,13 +70,13 @@ export const updateExpense:RequestHandler<updateParams,unknown,updateBodyExpense
         next(err);
     }
 };
-export const deleteExpense:RequestHandler=async(req,res,next)=>{
+ public deleteExpense:RequestHandler=async(req,res,next)=>{
     const id = req.params.id;
     try{
         if(!mongoose.isValidObjectId(id)){
             throw createHttpError(400,"Invalid expense id ");
      }
-     const expense = await Expense.findByIdAndDelete(id);
+     const expense = await this.expenseDao.deleteExpense(id);
      if(!expense){
         throw createHttpError(404,"Expense not found");
 
@@ -104,4 +87,6 @@ export const deleteExpense:RequestHandler=async(req,res,next)=>{
         next(err);
     }
 
-};
+}
+}
+export default ExpenseController;
