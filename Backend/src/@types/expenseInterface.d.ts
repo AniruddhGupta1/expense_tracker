@@ -1,17 +1,15 @@
-interface addExpenseBody{
-    title?:string;
-    amount?:number;
-    date?:Date;
-    category?:string;
+export interface IAddExpenseBody {
+  title?: string;
+  amount?: number;
+  date?: Date;
+  category?: string;
 }
-interface  updateParams{
-    id:string;
+export interface IUpdateParams {
+  id: string;
 }
-interface updateBodyExpense {
-    title:string;
-    amount:number;
-    date:Date;
-    category:string;
-
+export interface IUpdateBodyExpense {
+  title: string;
+  amount: number;
+  date: Date;
+  category: string;
 }
-export {addExpenseBody,updateParams,updateBodyExpense};

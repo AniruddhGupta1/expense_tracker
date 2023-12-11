@@ -1,10 +1,9 @@
-interface SignUpBody{
-    username?:string,
-    email?:string,
-    password?:string
+export interface ISignUpBody {
+  username?: string;
+  email?: string;
+  password?: string;
 }
-interface loginBody{
-    username?:string,
-    password?:string,
+export interface ILoginBody {
+  username?: string;
+  password?: string;
 }
-export {SignUpBody,loginBody};
